@@ -126,6 +126,16 @@ task(1000, function()
   end
 end)
 
+function isRootAvailable()
+  local file = io.popen("su -c 'echo root'")
+  if file then
+    local output = file:read("*a")
+    file:close()
+    return output:find("root") ~= nil
+  end
+  return false
+end
+
 HexPatches = {}
 local targetPkg = "com.garena.game.codm"
 
@@ -634,6 +644,7 @@ local configSwitches = {
   -- VISUALS / ESP
   -- =========================================================
   "wall",
+  "wo",
   "redhack",
   "br",
 
@@ -652,6 +663,7 @@ local configSwitches = {
   "speed",
   "superfastdive",
   "hit",
+  "paldo",
 
   -- =========================================================
   -- MOVEMENT
@@ -1630,6 +1642,16 @@ function hit.OnCheckedChangeListener()
   end
 end
 
+-- LONG EXECUTE
+paldo.ButtonDrawable.setColorFilter(PorterDuffColorFilter(0xFF00FFEE, PorterDuff.Mode.SRC_ATOP))
+function paldo.OnCheckedChangeListener()
+  if paldo.checked then
+    HexPatches.MemoryPatch("libunity.so", 0x5947C18, "h20 00 80 D2 C0 03 5F D6") -- CheckTargetIsValid_ManualParameter
+    HexPatches.MemoryPatch("libunity.so", 0xC345020, "h20 00 80 D2 C0 03 5F D6") -- get_ExecutionID
+    idkcstmToast("ʟᴏɴɢ ᴇxᴇᴄᴜᴛᴇ : ᴀᴄᴛɪᴠᴀᴛᴇᴅ")
+   else
+  end
+end
 
 -- ⚙️ ANG LOGIC NG WALLHACK CHECKBOX MO
 wall.ButtonDrawable.setColorFilter(PorterDuffColorFilter(0xFF00FFEE, PorterDuff.Mode.SRC_ATOP))
@@ -1638,6 +1660,21 @@ function wall.OnCheckedChangeListener()
     antiC4droid()
     HexPatches.MemoryPatch("libunity.so", 0x548A67C, "h1F 20 03 D5 E0 03 13 AA", 32)
     idkcstmToast("Wallhack Activated")
+  end
+end
+
+wo.ButtonDrawable.setColorFilter(PorterDuffColorFilter(0xFF00FFEE, PorterDuff.Mode.SRC_ATOP))
+function wo.OnCheckedChangeListener()
+  if wo.checked then
+    HexPatches.MemoryPatch("libunity.so", 0x9677554, "h20 00 80 D2 C0 03 5F D6") -- get_IsInEM3Eye
+    HexPatches.MemoryPatch("libunity.so", 0xAD1FCDC , "h40 00 00 1C C0 03 5F D6") -- GetAccDistance
+    HexPatches.MemoryPatch("libunity.so", 0xAD1FCDC + 4, "hC0 03 5F D6 00 00 7A 44") -- GetAccDistance
+    HexPatches.MemoryPatch("libunity.so", 0xAD1FCDC + 8, hexValue, 16) -- GetAccDistance
+    HexPatches.MemoryPatch("libunity.so", 0x967755C , "h40 00 00 1C C0 03 5F D6") -- set_IsInEM3Eye
+    HexPatches.MemoryPatch("libunity.so", 0x967755C + 4, "hC0 03 5F D6 00 00 7A 44") -- set_IsInEM3Eye
+    HexPatches.MemoryPatch("libunity.so", 0x967755C + 8, hexValue, 16) -- set_IsInEM3Eye
+    idkcstmToast("ᴏᴜᴛʟɪɴᴇ : ᴀᴄᴛɪᴠᴀᴛᴇᴅ")
+   else
   end
 end
 
@@ -1937,7 +1974,7 @@ HexPatches.MemoryPatch("libanogs.so", 0x41ba40, "h00 00 80 D2 C0 03 5F D6")
   end)
   
   -- Isang beses na lang lalabas ang Toast na ito
-  showToast("BYPASS ACTIVATED + HOLD REPORT")
+  showToast("BYPASS ACTIVATED (TEST SERVER)")
 end
 
 -- I-load ang bypass nang hindi binibigla ang main thread sa pagsisimula
