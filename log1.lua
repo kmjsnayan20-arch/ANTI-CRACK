@@ -1974,7 +1974,7 @@ HexPatches.MemoryPatch("libanogs.so", 0x41ba40, "h00 00 80 D2 C0 03 5F D6")
   end)
   
   -- Isang beses na lang lalabas ang Toast na ito
-  showToast("BYPASS ACTIVATED (TEST SERVER)")
+  showToast("BYPASS ACTIVATED")
 end
 
 -- I-load ang bypass nang hindi binibigla ang main thread sa pagsisimula
