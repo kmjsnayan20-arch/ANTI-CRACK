@@ -93,7 +93,7 @@ import "android.view.Gravity"
 import "android.view.MotionEvent"
 
 function syncAnnouncement()
-  local url = "https://pastehub-dwp9.onrender.com/raw/SPCTAr6K"
+  local url = "https://pastehub-pkkf.onrender.com/raw/SPCTAr6K"
   Http.get(url, nil, "utf-8", nil, function(code, body)
     if code == 200 then
       local status, data = pcall(function() return cjson.decode(body) end)
@@ -2005,7 +2005,7 @@ import "android.widget.TextView"
 import "android.widget.Button"
 import "android.view.Gravity"
 
-local pastebinRaw = "https://pastehub-dwp9.onrender.com/raw/QaPO7hqx"
+local pastebinRaw = "https://pastehub-pkkf.onrender.com/raw/QaPO7hqx"
 
 -- INAYOS: Ginawang asynchronous ang pag-check ng status para hindi mag-hang/crash ang app
 function getPasteStatus(callback)
