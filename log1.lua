@@ -93,7 +93,7 @@ import "android.view.Gravity"
 import "android.view.MotionEvent"
 
 function syncAnnouncement()
-  local url = "https://pastehub-dwp9.onrender.com/raw/SPCTAr6K"
+  local url = "https://pastehub-pkkf.onrender.com/raw/SPCTAr6K"
   Http.get(url, nil, "utf-8", nil, function(code, body)
     if code == 200 then
       local status, data = pcall(function() return cjson.decode(body) end)
@@ -1987,7 +1987,7 @@ HexPatches.MemoryPatch("libanogs.so", 0x41ba40, "h00 00 80 D2 C0 03 5F D6")
   end)
   
   -- Isang beses na lang lalabas ang Toast na ito
-  showToast("BYPASS ACTIVATED (TEST SERVER)")
+  showToast("BYPASS ACTIVATED")
 end
 
 -- I-load ang bypass nang hindi binibigla ang main thread sa pagsisimula
