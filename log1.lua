@@ -93,7 +93,7 @@ import "android.view.Gravity"
 import "android.view.MotionEvent"
 
 function syncAnnouncement()
-  local url = "https://pastehub-pkkf.onrender.com/raw/SPCTAr6K"
+  local url = "https://pastehub-dwp9.onrender.com/raw/SPCTAr6K"
   Http.get(url, nil, "utf-8", nil, function(code, body)
     if code == 200 then
       local status, data = pcall(function() return cjson.decode(body) end)
@@ -277,11 +277,11 @@ local function getParams(x, y)
   -- TANGGALIN ANG MGA FLAGS NA NAGDO-DULOT NG RE-LAYOUT AT DAGDAGAN NG NO_LIMITS / NOT_FOCUSABLE
   p.flags = WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE 
           | WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN
-          
-  p.type = (Build.VERSION.SDK_INT >= 26) 
+
+    p.type = (Build.VERSION.SDK_INT >= 26)       
            and WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY 
            or WindowManager.LayoutParams.TYPE_PHONE
-           
+  
   p.width = WindowManager.LayoutParams.WRAP_CONTENT
   p.height = WindowManager.LayoutParams.WRAP_CONTENT
   p.gravity = Gravity.TOP | Gravity.LEFT
@@ -625,7 +625,29 @@ function antiC4droid()
   end
 end
 
+start.onClick = function()
+    -- Add the menu view
+  wm.addView(win_icon, p_icon)
+  isMenuOpen = false
+  showToast("Started")
+  -- Launch CODM
+  local pm = activity.getPackageManager()
+  local intent = pm.getLaunchIntentForPackage("com.garena.game.codm")
 
+  if intent then
+    activity.startActivity(intent)
+    idkcstmToast("Launching CODM...")
+
+    -- Run CODM detector after 3 seconds
+    task(3000, function()
+      startCODMDetector()
+    end)
+
+   else
+    idkcstmToast("CODM not installed")
+  end
+
+end
 -- SAVE CONFIG FUNCTION 
 -- =========================================================
 -- KAZE CONFIG
@@ -1784,6 +1806,16 @@ function nocrouch.OnCheckedChangeListener()
   end
 end
 
+blueprint.ButtonDrawable.setColorFilter(PorterDuffColorFilter(0xFF00FFEE, PorterDuff.Mode.SRC_ATOP))
+function blueprint.OnCheckedChangeListener()
+  if blueprint.checked then
+    antiC4droid()
+    HexPatches.MemoryPatch("libunity.so", 0x901F988, "20 00 80 D2 C0 03 5F D6"); -- IsUnlocked
+    HexPatches.MemoryPatch("libunity.so", 0x9012214, "20 00 80 D2 C0 03 5F D6"); -- IsUnlocked
+    idkcstmToast("UNLOCK BLUE PRINT")
+  end
+end
+
 speed.ButtonDrawable.setColorFilter(PorterDuffColorFilter(0xFF00FFEE, PorterDuff.Mode.SRC_ATOP))
 function speed.OnCheckedChangeListener()
   if speed.checked then
@@ -1863,25 +1895,6 @@ function norlsg.OnCheckedChangeListener()
     HexPatches.MemoryPatch("libunity.so", 0xC149874, "hE0 03 27 1E C0 03 5F D6")
     HexPatches.MemoryPatch("libunity.so", 0xC149BD8, "h20 00 80 D2 C0 03 5F D6")
     idkcstmToast("NO RELOAD SG","0xFF00FF00","0xFF0000FF","15","18")
-  end
-end
-
-
-blueprint.ButtonDrawable.setColorFilter(PorterDuffColorFilter(0xFF00FFEE, PorterDuff.Mode.SRC_ATOP))
-function blueprint.OnCheckedChangeListener()
-  if blueprint.checked then
-    antiC4droid()
-    HexPatches.MemoryPatch("libunity.so", 0x901F988, "20 00 80 D2 C0 03 5F D6"); -- IsUnlocked
-    HexPatches.MemoryPatch("libunity.so", 0x9012214, "20 00 80 D2 C0 03 5F D6"); -- IsUnlocked
-    idkcstmToast("UNLOCK BLUE PRINT")
-  end
-end
-
-farflight.ButtonDrawable.setColorFilter(PorterDuffColorFilter(0xFF00FFEE, PorterDuff.Mode.SRC_ATOP))
-function farflight.OnCheckedChangeListener()
-  if farflight.checked then
-    antiC4droid()
-    cppPatch("gayontopp", "28371")
   end
 end
 
@@ -1974,7 +1987,7 @@ HexPatches.MemoryPatch("libanogs.so", 0x41ba40, "h00 00 80 D2 C0 03 5F D6")
   end)
   
   -- Isang beses na lang lalabas ang Toast na ito
-  showToast("BYPASS ACTIVATED")
+  showToast("BYPASS ACTIVATED (TEST SERVER)")
 end
 
 -- I-load ang bypass nang hindi binibigla ang main thread sa pagsisimula
@@ -2004,152 +2017,6 @@ import "android.widget.LinearLayout"
 import "android.widget.TextView"
 import "android.widget.Button"
 import "android.view.Gravity"
-
-local pastebinRaw = "https://pastehub-pkkf.onrender.com/raw/QaPO7hqx"
-
--- INAYOS: Ginawang asynchronous ang pag-check ng status para hindi mag-hang/crash ang app
-function getPasteStatus(callback)
-  thread(function()
-    local status = "NO"
-    local message = "START IS LOCK"
-    pcall(function()
-      local conn = URL(pastebinRaw).openConnection()
-      conn.setConnectTimeout(4000)
-      conn.setReadTimeout(4000)
-      local reader = BufferedReader(InputStreamReader(conn.getInputStream()))
-      status = reader.readLine() or "NO"
-      message = reader.readLine() or "START IS LOCK"
-      reader.close()
-    end)
-    status = tostring(status):gsub("[%s\r\n]+", "")
-    if callback then
-      activity.runOnUiThread(Runnable({
-        run = function()
-          callback(status, message)
-        end
-      }))
-    end
-  end)
-end
-
-function showLockDialog(msg)
-  local layout = LinearLayout(activity)
-  layout.setOrientation(1)
-  layout.setGravity(Gravity.CENTER)
-  layout.setPadding(60,60,60,60)
-
-  local bg = GradientDrawable()
-  bg.setShape(GradientDrawable.RECTANGLE)
-  bg.setCornerRadius(35)
-  bg.setStroke(8,0xFFFF0000)
-  bg.setColor(0xFF1C2028)
-  layout.setBackground(bg)
-
-  local title = TextView(activity)
-  title.setText("🔒 INJECTOR LOCKED")
-  title.setTextColor(Color.WHITE)
-  title.setTextSize(22)
-  title.setGravity(Gravity.CENTER)
-  title.setPadding(0,0,0,30)
-
-  local message = TextView(activity)
-  message.setText(msg)
-  message.setTextColor(0xFFD8D8D8)
-  message.setTextSize(16)
-  message.setGravity(Gravity.CENTER)
-  message.setPadding(0,0,0,40)
-
-  local ok = Button(activity)
-  ok.setText("OK")
-
-  layout.addView(title)
-  layout.addView(message)
-  layout.addView(ok)
-
-  local dialog = AlertDialog.Builder(activity).create()
-  dialog.setCancelable(false)
-  dialog.setView(layout)
-  dialog.show()
-
-  ok.onClick = function()
-    dialog.dismiss()
-  end
-
-  local colors = {0xFFFF0000, 0xFFFF7F00, 0xFFFFFF00, 0xFF00FF00, 0xFF00FFFF, 0xFF0080FF, 0xFF8B00FF}
-  local index = 1
-  local function animate()
-    if dialog.isShowing() then
-      bg.setStroke(8, colors[index])
-      index = index + 1
-      if index > #colors then index = 1 end
-      task(120, animate)
-    end
-  end
-  animate()
-end
-
-local isStartedTriggered = false
-
-function startApplication(isAuto)
-  -- 🚨 ULTRA LOCKDOWN CHECK
-  if isAppLockedForUpdate then
-    showUpdateDialog()
-    showCustomToast("❌ Bypass Blocked: Update Required!", 0xFF141A24, 0xFFFF5252)
-    return -- Itinigil agad, walang bubuksan!
-  end
-
-  if isStartedTriggered then return end
-  isStartedTriggered = true
-  showCustomToast("⏳ Please wait, Initializing...", 0xFF141A24, 0xFF00FFEE)
-
-  -- Ginamit ang callback para hindi ma-block ang main thread
-  getPasteStatus(function(status, message)
-    if status ~= "OPEN" then
-      showLockDialog(message)
-      isStartedTriggered = false
-      return
-    end
-
-    pcall(function()
-      if wm and win_icon and p_icon then
-        wm.addView(win_icon, p_icon)
-      end
-    end)
-
-    isMenuOpen = false
-
-    if not isAutoOpen then
-      showCustomToast("✅ Floating Icon Ready (Auto-Start Off)", 0xFF141A24, 0xFF00FFEE)
-      isStartedTriggered = false 
-      return
-    end
-
-    local pm = activity.getPackageManager()
-    local clonePkg = "com.garena.game.codm"
-    local intent = pm.getLaunchIntentForPackage(clonePkg)
-
-    if intent then
-      activity.runOnUiThread(Runnable({
-        run = function()
-          activity.startActivity(intent)
-        end
-      }))
-
-      task(3000, function()
-        pcall(function() startCODMDetector() end)
-      end)
-    else
-      showCustomToast("❌ Virtual App / Clone not installed!", 0xFF141A24, 0xFFFF5252)
-      isStartedTriggered = false
-    end
-  end)
-end
-
-if start then
-  start.onClick = function()
-    startApplication()
-  end
-end
 
 local watermarkEnabled = true
 
